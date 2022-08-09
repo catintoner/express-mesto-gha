@@ -31,3 +31,31 @@ module.exports.createCard = (request, response) => {
       response.status(500).send(`${err.name}: ${err.message}`);
     });
 };
+
+module.exports.likeCard = (request, response) => {
+  Card.findByIdAndUpdate(
+    request.params.cardId,
+    { $addToSet: { likes: request.user._id } },
+    { new: true },
+  )
+    .then((card) => {
+      response.send({ card });
+    })
+    .catch((err) => {
+      response.send.status(500).send(`${err.name}: ${err.message}`);
+    });
+};
+
+module.exports.dislikeCard = (request, response) => {
+  Card.findByIdAndUpdate(
+    request.params.cardId,
+    { $pull: { likes: request.user._id } },
+    { new: true },
+  )
+    .then((card) => {
+      response.send({ card });
+    })
+    .catch((err) => {
+      response.send.status(500).send(`${err.name}: ${err.message}`);
+    });
+};

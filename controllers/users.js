@@ -30,3 +30,25 @@ module.exports.createUser = (request, response) => {
       response.status(500).send({ message: 'Произошла ошибка' });
     });
 };
+
+module.exports.updateUserProfile = (request, response) => {
+  const { name, about } = request.body;
+  User.findByIdAndUpdate(request.user._id, { name, about }, { new: true })
+    .then((user) => {
+      response.send({ user });
+    })
+    .catch((err) => {
+      response.status(500).send(`${err.name}: ${err.message}`);
+    });
+};
+
+module.exports.updateUserAvatar = (request, response) => {
+  const { avatar } = request.body;
+  User.findByIdAndUpdate(request.user._id, { avatar }, { new: true })
+    .then((user) => {
+      response.send({ user });
+    })
+    .catch((err) => {
+      response.send.status(500).send(`${err.name}: ${err.message}`);
+    });
+};
