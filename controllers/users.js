@@ -10,12 +10,14 @@ module.exports.getUsers = (request, response) => {
     });
 };
 
-module.exports.getUser = (request, response) => {
-  if (!User[request.params.userId]) {
-    response.send({ error: 'Такого пользователя нет' });
-    return;
-  }
-  response.send([request.params._id]);
+module.exports.getUserById = (request, response) => {
+  User.findById(request.params.userId)
+    .then((user) => {
+      response.send({ user });
+    })
+    .catch((err) => {
+      response.status(500).send(`${err.name}: ${err.message}`);
+    });
 };
 
 module.exports.createUser = (request, response) => {
