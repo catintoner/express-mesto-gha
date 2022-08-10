@@ -1,7 +1,9 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+
 const router = require('./routes/users');
+const cardRouter = require('./routes/cards');
 
 const { PORT = 3000 } = process.env;
 
@@ -9,13 +11,22 @@ const app = express();
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
-  // useCreateIndex: true,
-  // useFindAndModify: false,
 });
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use((request, response, next) => {
+  request.user = {
+    _id: '62f2df06fed82102df93a16e',
+  };
+
+  next();
+});
+
 app.use('/users', router);
+
+app.use('/cards', cardRouter);
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
