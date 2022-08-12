@@ -16,6 +16,12 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use('/', (req, res, next) => {
+  next().catch((err) => {
+    res.send({ message: err.name });
+  });
+});
+
 app.use((request, response, next) => {
   request.user = {
     _id: '62f2df06fed82102df93a16e',
