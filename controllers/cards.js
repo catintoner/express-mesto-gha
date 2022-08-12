@@ -6,7 +6,7 @@ module.exports.getCards = (request, response) => {
       response.send({ data: cards });
     })
     .catch((err) => {
-      response.status(500).send(`${err.name}: ${err.message}`);
+      response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
     });
 };
 
@@ -28,7 +28,11 @@ module.exports.createCard = (request, response) => {
       response.send({ card });
     })
     .catch((err) => {
-      response.status(500).send(`${err.name}: ${err.message}`);
+      if (err.name === 'ValidationError') {
+        response.status(400).send({ message: 'Указанные данные не корректны' });
+      } else {
+        response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+      }
     });
 };
 
@@ -42,7 +46,7 @@ module.exports.likeCard = (request, response) => {
       response.send({ card });
     })
     .catch((err) => {
-      response.send.status(500).send(`${err.name}: ${err.message}`);
+      response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
     });
 };
 
@@ -56,6 +60,6 @@ module.exports.dislikeCard = (request, response) => {
       response.send({ card });
     })
     .catch((err) => {
-      response.send.status(500).send(`${err.name}: ${err.message}`);
+      response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
     });
 };

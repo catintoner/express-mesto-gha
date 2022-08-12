@@ -5,18 +5,26 @@ module.exports.getUsers = (request, response) => {
     .then((users) => {
       response.send({ data: users });
     })
-    .catch(() => {
-      response.status(500).send({ message: 'Произошла ошибка' });
+    .catch((err) => {
+      response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
     });
 };
 
 module.exports.getUserById = (request, response) => {
   User.findById(request.params.userId)
     .then((user) => {
-      response.send({ user });
+      if (user) {
+        response.send({ user });
+      } else {
+        response.status(404).send({ message: 'Пользователь не найден' });
+      }
     })
     .catch((err) => {
-      response.status(500).send(`${err.name}: ${err.message}`);
+      if (err.name === 'CastError') {
+        response.status(400).send({ message: 'Указанные данные не корректны' });
+      } else {
+        response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+      }
     });
 };
 
@@ -26,29 +34,55 @@ module.exports.createUser = (request, response) => {
     .then((user) => {
       response.send({ data: user });
     })
-    .catch(() => {
-      response.status(500).send({ message: 'Произошла ошибка' });
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        response.status(400).send({ message: 'Указанные данные не корректны' });
+      } else {
+        response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+      }
     });
 };
 
 module.exports.updateUserProfile = (request, response) => {
   const { name, about } = request.body;
-  User.findByIdAndUpdate(request.user._id, { name, about }, { new: true })
+  User.findByIdAndUpdate(request.user._id, { name, about }, {
+    new: true,
+    runValidators: true,
+  })
     .then((user) => {
-      response.send({ user });
+      if (user) {
+        response.send({ user });
+      } else {
+        response.status(404).send({ message: 'Пользователь не найден' });
+      }
     })
     .catch((err) => {
-      response.status(500).send(`${err.name}: ${err.message}`);
+      if (err.name === 'ValidationError') {
+        response.status(400).send({ message: 'Указанные данные не корректны' });
+      } else {
+        response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+      }
     });
 };
 
 module.exports.updateUserAvatar = (request, response) => {
   const { avatar } = request.body;
-  User.findByIdAndUpdate(request.user._id, { avatar }, { new: true })
+  User.findByIdAndUpdate(request.user._id, { avatar }, {
+    new: true,
+    runValidators: true,
+  })
     .then((user) => {
-      response.send({ user });
+      if (user) {
+        response.send({ user });
+      } else {
+        response.status(404).send({ message: 'Пользователь не найден' });
+      }
     })
     .catch((err) => {
-      response.send.status(500).send(`${err.name}: ${err.message}`);
+      if (err.name === 'ValidationError') {
+        response.status(400).send({ message: 'Указанные данные не корректны' });
+      } else {
+        response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+      }
     });
 };
