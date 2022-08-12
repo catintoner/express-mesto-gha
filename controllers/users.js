@@ -1,12 +1,14 @@
 const User = require('../models/user');
 
+const { errorNotFound, errorValidation, errorDefault } = require('../utils/constants');
+
 module.exports.getUsers = (request, response) => {
   User.find({})
     .then((users) => {
-      response.send({ data: users });
+      response.send({ users });
     })
     .catch((err) => {
-      response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+      response.status(errorDefault).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
     });
 };
 
@@ -16,14 +18,14 @@ module.exports.getUserById = (request, response) => {
       if (user) {
         response.send({ user });
       } else {
-        response.status(404).send({ message: 'Пользователь не найден' });
+        response.status(errorNotFound).send({ message: 'Пользователь не найден' });
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        response.status(400).send({ message: 'Указанные данные не корректны' });
+        response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
       } else {
-        response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+        response.status(errorDefault).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
       }
     });
 };
@@ -32,13 +34,13 @@ module.exports.createUser = (request, response) => {
   const { name, about, avatar } = request.body;
   User.create({ name, about, avatar })
     .then((user) => {
-      response.send({ data: user });
+      response.send({ user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        response.status(400).send({ message: 'Указанные данные не корректны' });
+        response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
       } else {
-        response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+        response.status(errorDefault).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
       }
     });
 };
@@ -53,14 +55,14 @@ module.exports.updateUserProfile = (request, response) => {
       if (user) {
         response.send({ user });
       } else {
-        response.status(404).send({ message: 'Пользователь не найден' });
+        response.status(errorNotFound).send({ message: 'Пользователь не найден' });
       }
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        response.status(400).send({ message: 'Указанные данные не корректны' });
+        response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
       } else {
-        response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+        response.status(errorDefault).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
       }
     });
 };
@@ -75,14 +77,14 @@ module.exports.updateUserAvatar = (request, response) => {
       if (user) {
         response.send({ user });
       } else {
-        response.status(404).send({ message: 'Пользователь не найден' });
+        response.status(errorNotFound).send({ message: 'Пользователь не найден' });
       }
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        response.status(400).send({ message: 'Указанные данные не корректны' });
+        response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
       } else {
-        response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+        response.status(errorDefault).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
       }
     });
 };

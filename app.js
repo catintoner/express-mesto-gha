@@ -6,6 +6,7 @@ const router = require('./routes/users');
 const cardRouter = require('./routes/cards');
 
 const { PORT = 3000 } = process.env;
+const { errorNotFound } = require('./utils/constants');
 
 const app = express();
 
@@ -15,12 +16,6 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
-app.use('/', (req, res, next) => {
-  next().catch((err) => {
-    res.send({ message: err.name });
-  });
-});
 
 app.use((request, response, next) => {
   request.user = {
@@ -33,6 +28,10 @@ app.use((request, response, next) => {
 app.use('/users', router);
 
 app.use('/cards', cardRouter);
+
+app.use('*', (request, response) => {
+  response.status(errorNotFound).send({ message: 'Запрашиваемая страница не найдена' });
+});
 
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console

@@ -1,12 +1,14 @@
 const Card = require('../models/card');
 
+const { errorNotFound, errorValidation, errorDefault } = require('../utils/constants');
+
 module.exports.getCards = (request, response) => {
   Card.find({})
     .then((cards) => {
-      response.send({ data: cards });
+      response.send({ cards });
     })
     .catch((err) => {
-      response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+      response.status(errorDefault).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
     });
 };
 
@@ -16,14 +18,14 @@ module.exports.deleteCardById = (request, response) => {
       if (card) {
         response.send({ message: 'Карточка удалена' });
       } else {
-        response.status(404).send({ message: 'Карточка не найдена' });
+        response.status(errorNotFound).send({ message: 'Карточка не найдена' });
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        response.status(400).send({ message: 'Указанные данные не корректны' });
+        response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
       } else {
-        response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+        response.status(errorDefault).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
       }
     });
 };
@@ -37,9 +39,9 @@ module.exports.createCard = (request, response) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        response.status(400).send({ message: 'Указанные данные не корректны' });
+        response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
       } else {
-        response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+        response.status(errorDefault).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
       }
     });
 };
@@ -54,14 +56,14 @@ module.exports.likeCard = (request, response) => {
       if (card) {
         response.send({ card });
       } else {
-        response.status(404).send({ message: 'Карточка не найдена' });
+        response.status(errorNotFound).send({ message: 'Карточка не найдена' });
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        response.status(400).send({ message: 'Указанные данные не корректны' });
+        response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
       } else {
-        response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+        response.status(errorDefault).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
       }
     });
 };
@@ -76,14 +78,14 @@ module.exports.dislikeCard = (request, response) => {
       if (card) {
         response.send({ card });
       } else {
-        response.status(404).send({ message: 'Карточка не найдена' });
+        response.status(errorNotFound).send({ message: 'Карточка не найдена' });
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        response.status(400).send({ message: 'Указанные данные не корректны' });
+        response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
       } else {
-        response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+        response.status(errorDefault).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
       }
     });
 };
