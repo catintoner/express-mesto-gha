@@ -12,11 +12,19 @@ module.exports.getCards = (request, response) => {
 
 module.exports.deleteCardById = (request, response) => {
   Card.findByIdAndDelete(request.params.cardId)
-    .then(() => {
-      response.send({ message: 'Карточка удалена' });
+    .then((card) => {
+      if (card) {
+        response.send({ message: 'Карточка удалена' });
+      } else {
+        response.status(404).send({ message: 'Карточка не найдена' });
+      }
     })
     .catch((err) => {
-      response.status(500).send(`${err.name}: ${err.message}`);
+      if (err.name === 'CastError') {
+        response.status(400).send({ message: 'Указанные данные не корректны' });
+      } else {
+        response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+      }
     });
 };
 
@@ -43,10 +51,18 @@ module.exports.likeCard = (request, response) => {
     { new: true },
   )
     .then((card) => {
-      response.send({ card });
+      if (card) {
+        response.send({ card });
+      } else {
+        response.status(404).send({ message: 'Карточка не найдена' });
+      }
     })
     .catch((err) => {
-      response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+      if (err.name === 'CastError') {
+        response.status(400).send({ message: 'Указанные данные не корректны' });
+      } else {
+        response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+      }
     });
 };
 
@@ -57,9 +73,17 @@ module.exports.dislikeCard = (request, response) => {
     { new: true },
   )
     .then((card) => {
-      response.send({ card });
+      if (card) {
+        response.send({ card });
+      } else {
+        response.status(404).send({ message: 'Карточка не найдена' });
+      }
     })
     .catch((err) => {
-      response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+      if (err.name === 'CastError') {
+        response.status(400).send({ message: 'Указанные данные не корректны' });
+      } else {
+        response.status(500).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+      }
     });
 };
