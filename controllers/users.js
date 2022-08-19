@@ -14,14 +14,15 @@ module.exports.getUsers = (request, response) => {
 
 module.exports.getUserById = (request, response) => {
   User.findById(request.params.userId)
+    .orFail(new Error('NotFoundId'))
     .then((user) => {
-      if (user) {
-        response.send({ user });
-      } else {
-        response.status(errorNotFound).send({ message: 'Пользователь не найден' });
-      }
+      response.send({ user });
     })
     .catch((err) => {
+      if (err.message === 'NotFoundId') {
+        response.status(errorNotFound).send({ message: 'Пользователь не найден' });
+        return;
+      }
       if (err.name === 'CastError') {
         response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
       } else {
@@ -51,14 +52,15 @@ module.exports.updateUserProfile = (request, response) => {
     new: true,
     runValidators: true,
   })
+    .orFail(new Error('NotFoundId'))
     .then((user) => {
-      if (user) {
-        response.send({ user });
-      } else {
-        response.status(errorNotFound).send({ message: 'Пользователь не найден' });
-      }
+      response.send({ user });
     })
     .catch((err) => {
+      if (err.message === 'notFoundId') {
+        response.status(errorNotFound).send({ message: 'Пользователь не найден' });
+        return;
+      }
       if (err.name === 'ValidationError') {
         response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
       } else {
@@ -73,14 +75,15 @@ module.exports.updateUserAvatar = (request, response) => {
     new: true,
     runValidators: true,
   })
+    .orFail(new Error('NotFoundId'))
     .then((user) => {
-      if (user) {
-        response.send({ user });
-      } else {
-        response.status(errorNotFound).send({ message: 'Пользователь не найден' });
-      }
+      response.send({ user });
     })
     .catch((err) => {
+      if (err.message === 'notFoundId') {
+        response.status(errorNotFound).send({ message: 'Пользователь не найден' });
+        return;
+      }
       if (err.name === 'ValidationError') {
         response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
       } else {

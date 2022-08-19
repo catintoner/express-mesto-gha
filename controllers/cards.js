@@ -52,14 +52,14 @@ module.exports.likeCard = (request, response) => {
     { $addToSet: { likes: request.user._id } },
     { new: true },
   )
+    .orFail(new Error('notFoundId'))
     .then((card) => {
-      if (card) {
-        response.send({ card });
-      } else {
-        response.status(errorNotFound).send({ message: 'Карточка не найдена' });
-      }
+      response.send({ card });
     })
     .catch((err) => {
+      if (err.message === 'notFoundId') {
+        response.status(errorNotFound).send({ message: 'Карточка не найдена' });
+      }
       if (err.name === 'CastError') {
         response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
       } else {
@@ -74,14 +74,14 @@ module.exports.dislikeCard = (request, response) => {
     { $pull: { likes: request.user._id } },
     { new: true },
   )
+    .orFail(new Error('notFoundId'))
     .then((card) => {
-      if (card) {
-        response.send({ card });
-      } else {
-        response.status(errorNotFound).send({ message: 'Карточка не найдена' });
-      }
+      response.send({ card });
     })
     .catch((err) => {
+      if (err.message === 'notFoundId') {
+        response.status(errorNotFound).send({ message: 'Карточка не найдена' });
+      }
       if (err.name === 'CastError') {
         response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
       } else {
