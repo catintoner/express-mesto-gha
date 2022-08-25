@@ -13,15 +13,26 @@ module.exports.getCards = (request, response) => {
 };
 
 module.exports.deleteCardById = (request, response) => {
-  Card.findByIdAndDelete(request.params.cardId)
+  Card.findById(request.params.cardId)
+    .orFail(new Error('errorNotFound'))
     .then((card) => {
-      if (card) {
-        response.send({ message: 'Карточка удалена' });
+      const ownerId = card.owner.toString();
+      if (ownerId === request.user._id) {
+        Card.deleteOne({ _id: request.params.cardId })
+          .then(() => response.send({ message: 'Карточка удалена' }));
       } else {
-        response.status(errorNotFound).send({ message: 'Карточка не найдена' });
+        throw new Error('errorPermissions');
       }
     })
     .catch((err) => {
+      if (err.message === 'errorPermissions') {
+        response.status(409).send({ message: `Denied ${err.message}` });
+        return;
+      }
+      if (err.message === 'errorNotFound') {
+        response.status(errorNotFound).send({ message: 'Карточка не найдена' });
+        return;
+      }
       if (err.name === 'CastError') {
         response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
       } else {

@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 const auth = require('./middlewares/auth');
 
@@ -20,20 +21,14 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// app.use((request, response, next) => {
-//   request.user = {
-//     _id: '62f2df06fed82102df93a16e',
-//   };
-
-//   next();
-// });
-
-app.post('/signin', auth, login);
+app.post('/signin', login);
 app.post('/signup', createUser);
 
-app.use('/users', router);
+app.use(cookieParser());
 
-app.use('/cards', cardRouter);
+app.use('/users', auth, router);
+
+app.use('/cards', auth, cardRouter);
 
 app.use('*', (request, response) => {
   response.status(errorNotFound).send({ message: 'Запрашиваемая страница не найдена' });

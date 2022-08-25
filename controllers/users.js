@@ -10,7 +10,7 @@ module.exports.login = (request, response) => {
   const { email, password } = request.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      jwt.sign(
+      const token = jwt.sign(
         {
           _id: user._id,
         },
@@ -19,7 +19,10 @@ module.exports.login = (request, response) => {
           expiresIn: '7d',
         },
       );
-      response.send({ _id: user._id });
+      response.cookie('jwt', token, {
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true,
+      }).send({ token });
     })
     .catch((err) => {
       response.status(401).send({ message: err.message });
@@ -36,25 +39,6 @@ module.exports.getUsers = (request, response) => {
     });
 };
 
-module.exports.getUserById = (request, response) => {
-  User.findById(request.params.userId)
-    .orFail(new Error('NotFoundId'))
-    .then((user) => {
-      response.send({ user });
-    })
-    .catch((err) => {
-      if (err.message === 'NotFoundId') {
-        response.status(errorNotFound).send({ message: 'Пользователь не найден' });
-        return;
-      }
-      if (err.name === 'CastError') {
-        response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
-      } else {
-        response.status(errorDefault).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
-      }
-    });
-};
-
 module.exports.createUser = (request, response) => {
   bcrypt.hash(request.body.password, 10)
     .then((hash) => (
@@ -67,6 +51,25 @@ module.exports.createUser = (request, response) => {
       response.send({ user });
     })
     .catch((err) => {
+      if (err.name === 'ValidationError') {
+        response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
+      } else {
+        response.status(errorDefault).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+      }
+    });
+};
+
+module.exports.getUserInfo = (request, response) => {
+  User.findById(request.user._id)
+    .orFail(new Error('NotFoundId'))
+    .then((user) => {
+      response.send({ user });
+    })
+    .catch((err) => {
+      if (err.message === 'notFoundId') {
+        response.status(errorNotFound).send({ message: 'Пользователь не найден' });
+        return;
+      }
       if (err.name === 'ValidationError') {
         response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
       } else {
