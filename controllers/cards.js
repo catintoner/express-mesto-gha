@@ -4,13 +4,15 @@ const ValidateError = require('../errors/ValidateError');
 const NotFoundError = require('../errors/NotFoundError');
 const DeleteForeignCard = require('../errors/DeleteForeignCard');
 
+const { OK, CREATED_CODE } = require('../utils/constants');
+
 module.exports.getCards = (request, response, next) => {
   Card.find({})
     .then((cards) => {
       if (cards.length === 0) {
         throw new NotFoundError('Карточек нет');
       } else {
-        response.send({ cards });
+        response.status(OK).send({ cards });
       }
     })
     .catch(next);
@@ -23,7 +25,7 @@ module.exports.deleteCardById = (request, response, next) => {
       const ownerId = card.owner.toString();
       if (ownerId === request.user._id) {
         Card.deleteOne({ _id: request.params.cardId })
-          .then(() => response.send({ message: 'Карточка удалена' }));
+          .then(() => response.status(OK).send({ message: 'Карточка удалена' }));
       } else {
         throw new DeleteForeignCard('Нет прав для удаления карточки');
       }
@@ -42,7 +44,7 @@ module.exports.createCard = (request, response, next) => {
   const owner = request.user._id;
   Card.create({ name, link, owner })
     .then((card) => {
-      response.send({ card });
+      response.status(CREATED_CODE).send({ card });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -61,7 +63,7 @@ module.exports.likeCard = (request, response, next) => {
   )
     .orFail(new NotFoundError('Карточка не найдена'))
     .then((card) => {
-      response.send({ card });
+      response.status(OK).send({ card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -80,7 +82,7 @@ module.exports.dislikeCard = (request, response, next) => {
   )
     .orFail(new NotFoundError('Карточка не найдена'))
     .then((card) => {
-      response.send({ card });
+      response.status(OK).send({ card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
