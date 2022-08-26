@@ -1,47 +1,43 @@
 const Card = require('../models/card');
 
-const { errorNotFound, errorValidation, errorDefault } = require('../utils/constants');
+const ValidateError = require('../errors/ValidateError');
+const NotFoundError = require('../errors/NotFoundError');
+const DeleteForeignCard = require('../errors/DeleteForeignCard');
 
-module.exports.getCards = (request, response) => {
+module.exports.getCards = (request, response, next) => {
   Card.find({})
     .then((cards) => {
-      response.send({ cards });
+      if (cards.length === 0) {
+        throw new NotFoundError('Карточек нет');
+      } else {
+        response.send({ cards });
+      }
     })
-    .catch((err) => {
-      response.status(errorDefault).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
-    });
+    .catch(next);
 };
 
-module.exports.deleteCardById = (request, response) => {
+module.exports.deleteCardById = (request, response, next) => {
   Card.findById(request.params.cardId)
-    .orFail(new Error('errorNotFound'))
+    .orFail(new NotFoundError('Данная карточка не найдена'))
     .then((card) => {
       const ownerId = card.owner.toString();
       if (ownerId === request.user._id) {
         Card.deleteOne({ _id: request.params.cardId })
           .then(() => response.send({ message: 'Карточка удалена' }));
       } else {
-        throw new Error('errorPermissions');
+        throw new DeleteForeignCard('Нет прав для удаления карточки');
       }
     })
     .catch((err) => {
-      if (err.message === 'errorPermissions') {
-        response.status(409).send({ message: `Denied ${err.message}` });
-        return;
-      }
-      if (err.message === 'errorNotFound') {
-        response.status(errorNotFound).send({ message: 'Карточка не найдена' });
-        return;
-      }
       if (err.name === 'CastError') {
-        response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
+        next(new ValidateError('Указанные данные не корректны'));
       } else {
-        response.status(errorDefault).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+        next(err);
       }
     });
 };
 
-module.exports.createCard = (request, response) => {
+module.exports.createCard = (request, response, next) => {
   const { name, link } = request.body;
   const owner = request.user._id;
   Card.create({ name, link, owner })
@@ -50,53 +46,47 @@ module.exports.createCard = (request, response) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
+        next(new ValidateError('Указанные данные не корректны'));
       } else {
-        response.status(errorDefault).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+        next(err);
       }
     });
 };
 
-module.exports.likeCard = (request, response) => {
+module.exports.likeCard = (request, response, next) => {
   Card.findByIdAndUpdate(
     request.params.cardId,
     { $addToSet: { likes: request.user._id } },
     { new: true },
   )
-    .orFail(new Error('notFoundId'))
+    .orFail(new NotFoundError('Карточка не найдена'))
     .then((card) => {
       response.send({ card });
     })
     .catch((err) => {
-      if (err.message === 'notFoundId') {
-        response.status(errorNotFound).send({ message: 'Карточка не найдена' });
-      }
       if (err.name === 'CastError') {
-        response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
+        next(new ValidateError('Указанные данные не корректны'));
       } else {
-        response.status(errorDefault).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+        next(err);
       }
     });
 };
 
-module.exports.dislikeCard = (request, response) => {
+module.exports.dislikeCard = (request, response, next) => {
   Card.findByIdAndUpdate(
     request.params.cardId,
     { $pull: { likes: request.user._id } },
     { new: true },
   )
-    .orFail(new Error('notFoundId'))
+    .orFail(new NotFoundError('Карточка не найдена'))
     .then((card) => {
       response.send({ card });
     })
     .catch((err) => {
-      if (err.message === 'notFoundId') {
-        response.status(errorNotFound).send({ message: 'Карточка не найдена' });
-      }
       if (err.name === 'CastError') {
-        response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
+        next(new ValidateError('Указанные данные не корректны'));
       } else {
-        response.status(errorDefault).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+        next(err);
       }
     });
 };

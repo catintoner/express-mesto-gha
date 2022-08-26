@@ -1,5 +1,3 @@
-const errorNotFound = 404;
-const errorValidation = 400;
-const errorDefault = 500;
+const SERVER_ERROR = 500;
 
-module.exports = { errorNotFound, errorValidation, errorDefault };
+module.exports = SERVER_ERROR;

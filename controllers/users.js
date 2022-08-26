@@ -4,9 +4,11 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
 
-const { errorNotFound, errorValidation, errorDefault } = require('../utils/constants');
+const ValidateError = require('../errors/ValidateError');
+const NotFoundError = require('../errors/NotFoundError');
+const UniqueEmailError = require('../errors/UniqueEmailError');
 
-module.exports.login = (request, response) => {
+module.exports.login = (request, response, next) => {
   const { email, password } = request.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
@@ -24,102 +26,110 @@ module.exports.login = (request, response) => {
         httpOnly: true,
       }).send({ token });
     })
-    .catch((err) => {
-      response.status(401).send({ message: err.message });
-    });
+    .catch(next);
 };
 
-module.exports.getUsers = (request, response) => {
+module.exports.getUsers = (request, response, next) => {
   User.find({})
     .then((users) => {
+      if (!users) {
+        throw new NotFoundError('Пользователи не найдены');
+      }
       response.send({ users });
     })
-    .catch((err) => {
-      response.status(errorDefault).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
-    });
+    .catch(next);
 };
 
-module.exports.createUser = (request, response) => {
+module.exports.createUser = (request, response, next) => {
   bcrypt.hash(request.body.password, 10)
-    .then((hash) => (
+    .then((hash) => {
       User.create({
         email: request.body.email,
         password: hash,
       })
-    ))
+        .then((userInfo) => {
+          const user = userInfo.toObject();
+          delete user.password;
+          response.send(user);
+        })
+        .catch((err) => {
+          if (err.code === 11000) {
+            next(new UniqueEmailError('Пользователь с таким Email уже существует'));
+            return;
+          }
+          if (err.name === 'ValidationError') {
+            next(new ValidateError('Указанные данные не корректны'));
+          } else {
+            next(err);
+          }
+        });
+    });
+};
+
+module.exports.getUserById = (request, response, next) => {
+  User.findById(request.params.userId)
+    .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => {
       response.send({ user });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
+      if (err.name === 'CastError') {
+        next(new ValidateError('Указанные данные не корректны'));
       } else {
-        response.status(errorDefault).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+        next(err);
       }
     });
 };
 
-module.exports.getUserInfo = (request, response) => {
+module.exports.getUserInfo = (request, response, next) => {
   User.findById(request.user._id)
-    .orFail(new Error('NotFoundId'))
+    .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => {
       response.send({ user });
     })
     .catch((err) => {
-      if (err.message === 'notFoundId') {
-        response.status(errorNotFound).send({ message: 'Пользователь не найден' });
-        return;
-      }
-      if (err.name === 'ValidationError') {
-        response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
+      if (err.name === 'CastError') {
+        next(new ValidateError('Указанные данные не корректны'));
       } else {
-        response.status(errorDefault).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+        next(err);
       }
     });
 };
 
-module.exports.updateUserProfile = (request, response) => {
+module.exports.updateUserProfile = (request, response, next) => {
   const { name, about } = request.body;
   User.findByIdAndUpdate(request.user._id, { name, about }, {
     new: true,
     runValidators: true,
   })
-    .orFail(new Error('NotFoundId'))
+    .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => {
       response.send({ user });
     })
     .catch((err) => {
-      if (err.message === 'notFoundId') {
-        response.status(errorNotFound).send({ message: 'Пользователь не найден' });
-        return;
-      }
       if (err.name === 'ValidationError') {
-        response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
+        next(new ValidateError('Указанные данные не корректны'));
       } else {
-        response.status(errorDefault).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+        next(err);
       }
     });
 };
 
-module.exports.updateUserAvatar = (request, response) => {
+module.exports.updateUserAvatar = (request, response, next) => {
   const { avatar } = request.body;
   User.findByIdAndUpdate(request.user._id, { avatar }, {
     new: true,
     runValidators: true,
   })
-    .orFail(new Error('NotFoundId'))
+    .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => {
       response.send({ user });
     })
     .catch((err) => {
-      if (err.message === 'notFoundId') {
-        response.status(errorNotFound).send({ message: 'Пользователь не найден' });
-        return;
-      }
       if (err.name === 'ValidationError') {
-        response.status(errorValidation).send({ message: 'Указанные данные не корректны' });
+        next(new ValidateError('Указанные данные не корректны'));
       } else {
-        response.status(errorDefault).send({ message: `Упс, похоже, неизвестная ошибка, вот подсказка => ${err.name}: ${err.message}` });
+        next(err);
       }
     });
 };

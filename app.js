@@ -7,11 +7,13 @@ const auth = require('./middlewares/auth');
 
 const router = require('./routes/users');
 const cardRouter = require('./routes/cards');
+
 const { login, createUser } = require('./controllers/users');
 
-const { PORT = 3000 } = process.env;
-const { errorNotFound } = require('./utils/constants');
+const SERVER_ERROR = require('./utils/constants');
+const NotFoundError = require('./errors/NotFoundError');
 
+const { PORT = 3000 } = process.env;
 const app = express();
 
 mongoose.connect('mongodb://localhost:27017/mestodb', {
@@ -30,8 +32,17 @@ app.use('/users', auth, router);
 
 app.use('/cards', auth, cardRouter);
 
-app.use('*', (request, response) => {
-  response.status(errorNotFound).send({ message: 'Запрашиваемая страница не найдена' });
+app.use('*', (request, response, next) => {
+  next(new NotFoundError('Запрашиваемая страница не найдена'));
+});
+
+app.use((err, request, response, next) => {
+  if (err.statusCode) {
+    response.status(err.statusCode).send({ message: err.message });
+  } else {
+    response.status(SERVER_ERROR).send({ message: `Произошла ошибка => ${err.message}` });
+  }
+  next();
 });
 
 app.listen(PORT, () => {
