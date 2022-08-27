@@ -30,9 +30,9 @@ app.post(
     body: Joi.object().keys({
       email: Joi.string().required().email(),
       password: Joi.string().required(),
-      name: Joi.string().min(2).max(30),
-      about: Joi.string().min(2).max(30),
-      avatar: Joi.string().pattern(/^https?:\/\/(www.)?([\S\w-._~:/?#[\]@!$&'()*+,;=])*(#)?$/),
+      // name: Joi.string().min(2).max(30),
+      // about: Joi.string().min(2).max(30),
+      // avatar: Joi.string().pattern(/^https?:\/\/(www.)?([\S\w-._~:/?#[\]@!$&'()*+,;=])*(#)?$/),
     }),
   }),
   login,
@@ -44,9 +44,9 @@ app.post(
     body: Joi.object().keys({
       email: Joi.string().required().email(),
       password: Joi.string().required().min(8),
-      name: Joi.string().min(2).max(30),
-      about: Joi.string().min(2).max(30),
-      avatar: Joi.string().pattern(/^https?:\/\/(www.)?([\S\w-._~:/?#[\]@!$&'()*+,;=])*(#)?$/),
+      // name: Joi.string().min(2).max(30),
+      // about: Joi.string().min(2).max(30),
+      // avatar: Joi.string().pattern(/^https?:\/\/(www.)?([\S\w-._~:/?#[\]@!$&'()*+,;=])*(#)?$/),
     }),
   }),
   createUser,
@@ -60,30 +60,12 @@ app.use(
     params: Joi.object().keys({
       userId: Joi.string().hex().length(24),
     }),
-    body: Joi.object().keys({
-      name: Joi.string().min(2).max(30),
-      about: Joi.string().min(2).max(30),
-      avatar: Joi.string().pattern(/^https?:\/\/(www.)?([\S\w-._~:/?#[\]@!$&'()*+,;=])*(#)?$/),
-    }),
   }),
   auth,
   router,
 );
 
-app.use(
-  '/cards',
-  celebrate({
-    params: Joi.object().keys({
-      cardId: Joi.string().hex().length(24),
-    }),
-    body: Joi.object().keys({
-      name: Joi.string().required().min(2).max(30),
-      link: Joi.string().required().pattern(/^https?:\/\/(www.)?([\S\w-._~:/?#[\]@!$&'()*+,;=])*(#)?$/),
-    }),
-  }),
-  auth,
-  cardRouter,
-);
+app.use('/cards', auth, cardRouter);
 
 app.use('*', (request, response, next) => {
   next(new NotFoundError('Запрашиваемая страница не найдена'));
