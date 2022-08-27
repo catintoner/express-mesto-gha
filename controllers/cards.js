@@ -9,11 +9,7 @@ const { OK, CREATED_CODE } = require('../utils/constants');
 module.exports.getCards = (request, response, next) => {
   Card.find({})
     .then((cards) => {
-      // if (cards.length === 0) {
-      //   throw new NotFoundError('Карточек нет');
-      // } else {
-        response.status(OK).send(cards);
-      // }
+      response.status(OK).send(cards);
     })
     .catch(next);
 };
