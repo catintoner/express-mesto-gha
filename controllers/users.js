@@ -56,6 +56,7 @@ module.exports.createUser = (request, response, next) => {
             email: user.email,
             name: user.name,
             about: user.about,
+            avatar: user.avatar,
           });
         })
         .catch((err) => {
