@@ -33,8 +33,13 @@ module.exports.deleteCardById = (request, response, next) => {
     .then((card) => {
       const ownerId = card.owner.toString();
       if (ownerId === request.user._id) {
-        Card.deleteOne(card)
-          .then(() => response.status(OK).send({ card }))
+        Card.deleteOne(
+          card,
+          {
+            new: true,
+          },
+        )
+          .then(() => response.status(OK).send({ message: 'Карточка удалена' }))
           .catch(next);
       } else {
         throw new DeleteForeignCard('Нет прав для удаления карточки');
