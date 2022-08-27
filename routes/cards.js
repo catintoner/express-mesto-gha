@@ -4,6 +4,7 @@ const { Joi, celebrate } = require('celebrate');
 
 const {
   getCards,
+  getCardById,
   deleteCardById,
   createCard,
   likeCard,
@@ -11,6 +12,16 @@ const {
 } = require('../controllers/cards');
 
 cardRouter.get('/', getCards);
+
+cardRouter.get(
+  '/:cardId',
+  celebrate({
+    params: Joi.object().keys({
+      cardId: Joi.string().hex().length(24),
+    }),
+  }),
+  getCardById,
+);
 
 cardRouter.post(
   '/',

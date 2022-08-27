@@ -12,8 +12,17 @@ module.exports.getCards = (request, response, next) => {
       if (cards.length === 0) {
         throw new NotFoundError('Карточек нет');
       } else {
-        response.status(OK).send({ cards });
+        response.status(OK).send(cards);
       }
+    })
+    .catch(next);
+};
+
+module.exports.getCardById = (request, response, next) => {
+  Card.findById(request.params.cardId)
+    .orFail(new NotFoundError('Данная карточка не найдена'))
+    .then((card) => {
+      response.status(OK).send(card);
     })
     .catch(next);
 };
