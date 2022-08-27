@@ -72,7 +72,7 @@ module.exports.getUserById = (request, response, next) => {
   User.findById(request.params.userId)
     .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => {
-      response.status(OK).send({ user });
+      response.status(OK).send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -87,7 +87,7 @@ module.exports.getUserInfo = (request, response, next) => {
   User.findById(request.user._id)
     .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => {
-      response.status(OK).send({ user });
+      response.status(OK).send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
