@@ -52,12 +52,7 @@ module.exports.createUser = (request, response, next) => {
         .then((userInfo) => {
           const user = userInfo.toObject();
           delete user.password;
-          response.status(CREATED_CODE).send({
-            email: user.email,
-            name: user.name,
-            about: user.about,
-            avatar: user.avatar,
-          });
+          response.status(CREATED_CODE).send(user);
         })
         .catch((err) => {
           if (err.code === 11000) {
