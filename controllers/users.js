@@ -26,7 +26,7 @@ module.exports.login = (request, response, next) => {
       response.cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
-      }).status(CREATED_CODE).send({ user });
+      }).status(OK).send({ user });
     })
     .catch(next);
 };
@@ -106,7 +106,7 @@ module.exports.updateUserProfile = (request, response, next) => {
   })
     .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => {
-      response.status(CREATED_CODE).send({ user });
+      response.status(OK).send({ user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -125,7 +125,7 @@ module.exports.updateUserAvatar = (request, response, next) => {
   })
     .orFail(new NotFoundError('Пользователь не найден'))
     .then((user) => {
-      response.status(CREATED_CODE).send({ user });
+      response.status(OK).send({ user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
