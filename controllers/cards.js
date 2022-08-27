@@ -33,7 +33,7 @@ module.exports.deleteCardById = (request, response, next) => {
     .then((card) => {
       const ownerId = card.owner.toString();
       if (ownerId === request.user._id) {
-        Card.deleteOne(
+        Card.findByIdAndDelete(
           card,
           {
             new: true,
