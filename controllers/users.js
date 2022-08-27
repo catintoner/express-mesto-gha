@@ -26,7 +26,7 @@ module.exports.login = (request, response, next) => {
       response.cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
-      }).status(OK).send({ user });
+      }).status(OK).send({ message: 'Авторизация успешна' });
     })
     .catch(next);
 };
@@ -43,6 +43,7 @@ module.exports.getUsers = (request, response, next) => {
 };
 
 module.exports.createUser = (request, response, next) => {
+  console.log(request.body);
   bcrypt.hash(request.body.password, 10)
     .then((hash) => {
       User.create({
@@ -52,7 +53,12 @@ module.exports.createUser = (request, response, next) => {
         .then((userInfo) => {
           const user = userInfo.toObject();
           delete user.password;
-          response.status(CREATED_CODE).send({ email: user.email, password: user.password });
+          console.log(userInfo);
+          response.status(CREATED_CODE).send({
+            email: user.email,
+            name: user.name,
+            about: user.about,
+          });
         })
         .catch((err) => {
           if (err.code === 11000) {
