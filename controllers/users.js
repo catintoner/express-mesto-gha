@@ -42,12 +42,19 @@ module.exports.getUsers = (request, response, next) => {
     .catch(next);
 };
 
+// name: 'Жак-Ив Кусто',
+// about: 'Исследователь',
+// avatar: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
 module.exports.createUser = (request, response, next) => {
   bcrypt.hash(request.body.password, 10)
     .then((hash) => {
       User.create({
         email: request.body.email,
         password: hash,
+        name: request.body.name,
+        about: request.body.about,
+        avatar: request.body.avatar,
+
       })
         .then((userInfo) => {
           const user = userInfo.toObject();
