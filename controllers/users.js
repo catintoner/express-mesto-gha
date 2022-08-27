@@ -43,7 +43,6 @@ module.exports.getUsers = (request, response, next) => {
 };
 
 module.exports.createUser = (request, response, next) => {
-  console.log(request.body);
   bcrypt.hash(request.body.password, 10)
     .then((hash) => {
       User.create({
@@ -53,7 +52,6 @@ module.exports.createUser = (request, response, next) => {
         .then((userInfo) => {
           const user = userInfo.toObject();
           delete user.password;
-          console.log(userInfo);
           response.status(CREATED_CODE).send({
             email: user.email,
             name: user.name,
