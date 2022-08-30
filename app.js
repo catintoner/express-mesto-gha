@@ -30,9 +30,6 @@ app.post(
     body: Joi.object().keys({
       email: Joi.string().required().email(),
       password: Joi.string().required(),
-      name: Joi.string().min(2).max(30),
-      about: Joi.string().min(2).max(30),
-      avatar: Joi.string().pattern(/^https?:\/\/(www.)?([\S\w-._~:/?#[\]@!$&'()*+,;=])*(#)?$/),
     }),
   }),
   login,
@@ -44,9 +41,6 @@ app.post(
     body: Joi.object().keys({
       email: Joi.string().required().email(),
       password: Joi.string().required().min(8),
-      name: Joi.string().min(2).max(30),
-      about: Joi.string().min(2).max(30),
-      avatar: Joi.string().pattern(/^https?:\/\/(www.)?([\S\w-._~:/?#[\]@!$&'()*+,;=])*(#)?$/),
     }),
   }),
   createUser,
@@ -54,16 +48,7 @@ app.post(
 
 app.use(cookieParser());
 
-app.use(
-  '/users',
-  celebrate({
-    params: Joi.object().keys({
-      userId: Joi.string().hex().length(24),
-    }),
-  }),
-  auth,
-  router,
-);
+app.use('/users', auth, router);
 
 app.use('/cards', auth, cardRouter);
 
@@ -77,7 +62,7 @@ app.use((err, request, response, next) => {
   if (err.statusCode) {
     response.status(err.statusCode).send({ message: err.message });
   } else {
-    response.status(SERVER_ERROR).send({ message: `Произошла ошибка => ${err.message}` });
+    response.status(SERVER_ERROR).send({ message: 'Произошла ошибка' });
   }
   next();
 });
