@@ -14,6 +14,13 @@ const { login, createUser } = require('./controllers/users');
 const { SERVER_ERROR } = require('./utils/constants');
 const NotFoundError = require('./errors/NotFoundError');
 
+const validationRegisterInfo = {
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+  }),
+};
+
 const { PORT = 3000 } = process.env;
 const app = express();
 
@@ -26,23 +33,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.post(
   '/signin',
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().required().email(),
-      password: Joi.string().required(),
-    }),
-  }),
+  celebrate(validationRegisterInfo),
   login,
 );
 
 app.post(
   '/signup',
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().required().email(),
-      password: Joi.string().required().min(8),
-    }),
-  }),
+  celebrate(validationRegisterInfo),
   createUser,
 );
 
