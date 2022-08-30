@@ -33,13 +33,13 @@ const validationRegisterInfo = {
 
 app.post(
   '/signin',
-  celebrate(validationRegisterInfo),
+  celebrate(validationRegisterInfo).unknown(),
   login,
 );
 
 app.post(
   '/signup',
-  celebrate(validationRegisterInfo),
+  celebrate(validationRegisterInfo).unknown(),
   createUser,
 );
 
