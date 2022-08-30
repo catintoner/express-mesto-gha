@@ -14,7 +14,15 @@ router.get('/', getUsers);
 
 router.get('/me', getUserInfo);
 
-router.get('/:userId', getUserById);
+router.get(
+  '/:userId',
+  celebrate({
+    params: Joi.object().keys({
+      userId: Joi.string().hex().length(24),
+    }),
+  }),
+  getUserById,
+);
 
 router.patch(
   '/me',
