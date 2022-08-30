@@ -14,13 +14,6 @@ const { login, createUser } = require('./controllers/users');
 const { SERVER_ERROR } = require('./utils/constants');
 const NotFoundError = require('./errors/NotFoundError');
 
-const validationRegisterInfo = {
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required(),
-  }),
-};
-
 const { PORT = 3000 } = process.env;
 const app = express();
 
@@ -30,6 +23,13 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+const validationRegisterInfo = {
+  body: Joi.object().keys({
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+  }),
+};
 
 app.post(
   '/signin',
