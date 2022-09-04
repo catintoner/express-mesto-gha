@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const { Joi, celebrate, errors } = require('celebrate');
 
 const auth = require('./middlewares/auth');
+const cors = require('./middlewares/cors');
 
 const router = require('./routes/users');
 const cardRouter = require('./routes/cards');
@@ -23,6 +24,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(cors);
 
 app.post(
   '/signin',
