@@ -10,6 +10,8 @@ const UniqueEmailError = require('../errors/UniqueEmailError');
 
 const { OK, CREATED_CODE } = require('../utils/constants');
 
+const { NODE_ENV, JWT_SECRET } = process.env;
+
 module.exports.login = (request, response, next) => {
   const { email, password } = request.body;
   return User.findUserByCredentials(email, password)
@@ -18,7 +20,7 @@ module.exports.login = (request, response, next) => {
         {
           _id: user._id,
         },
-        'some-secret-key',
+        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
         {
           expiresIn: '7d',
         },
@@ -26,7 +28,7 @@ module.exports.login = (request, response, next) => {
       response.cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
-      }).status(OK).send({ message: 'Авторизация успешна' });
+      }).status(OK).send(user._id);
     })
     .catch(next);
 };

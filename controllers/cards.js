@@ -50,7 +50,7 @@ module.exports.createCard = (request, response, next) => {
   const owner = request.user._id;
   Card.create({ name, link, owner })
     .then((card) => {
-      response.status(CREATED_CODE).send({ card });
+      response.status(CREATED_CODE).send(card);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -69,7 +69,7 @@ module.exports.likeCard = (request, response, next) => {
   )
     .orFail(new NotFoundError('Карточка не найдена'))
     .then((card) => {
-      response.status(OK).send({ card });
+      response.status(OK).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -88,7 +88,7 @@ module.exports.dislikeCard = (request, response, next) => {
   )
     .orFail(new NotFoundError('Карточка не найдена'))
     .then((card) => {
-      response.status(OK).send({ card });
+      response.status(OK).send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {

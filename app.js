@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -6,6 +7,7 @@ const { Joi, celebrate, errors } = require('celebrate');
 
 const auth = require('./middlewares/auth');
 const cors = require('./middlewares/cors');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const router = require('./routes/users');
 const cardRouter = require('./routes/cards');
@@ -26,6 +28,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(cors);
+
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
+
+app.use(requestLogger);
 
 app.post(
   '/signin',
@@ -54,6 +64,8 @@ app.post(
 
 app.use(cookieParser());
 
+app.use('/', auth);
+
 app.use('/users', auth, router);
 
 app.use('/cards', auth, cardRouter);
@@ -61,6 +73,8 @@ app.use('/cards', auth, cardRouter);
 app.use('*', (request, response, next) => {
   next(new NotFoundError('Запрашиваемая страница не найдена'));
 });
+
+app.use(errorLogger);
 
 app.use(errors());
 
